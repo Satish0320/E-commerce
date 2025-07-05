@@ -31,12 +31,14 @@ export default function LoginPage(){
             <h2 className="text-2xl font-bold mb-4">Login</h2>
         <form onSubmit={handleLogin} className="space-y-4">
             <input type="email"
+            placeholder="email"
             value={form.email}
             onChange={(e)=>setform({...form, email:e.target.value})}
              className="w-full p-2 border rounded"
           required
             />
             <input type="password"
+            placeholder="password"
             value={form.password}
             onChange={(e)=>setform({...form, password:e.target.value})}
             className="w-full p-2 border rounded"

@@ -53,57 +53,38 @@ export const authOptions: NextAuthOptions = {
         },
 
         async signIn({ user, account }) {
-            if (account?.provider === "google") {
-                if (!user.email) throw new Error("No email from provider");
-                const existinguser = await prisma.user.findUnique({
-                    where: { email: user.email }
-                });
-                if (existinguser?.password) {
-                    throw new Error("Email already registered with password. Please use credentials login.")
+    if (account?.provider === "google") {
+        if (!user.email) throw new Error("No email from provider");
+
+        const existingUser = await prisma.user.findUnique({
+            where: { email: user.email }
+        });
+
+        const existingAccount = await prisma.account.findUnique({
+            where: {
+                provider_providerAccountId: {
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId
                 }
             }
-            return true
-        },
+        });
 
-        // async session({ token, session }) {
-        //     if (token) session.user.id = token.sub!
-        //     return session
-        // }
+        // 🟡 Important: Allow first-time Google login to create user
+        // The PrismaAdapter will handle user + account creation AFTER this callback
+        if (existingUser?.password && !existingAccount) {
+            // Let NextAuth proceed and create the account
+            // But prevent login AFTER user/account are saved
+            // You can optionally unlink OAuth accounts later
+            return false;
+        }
+    }
+
+    return true;
+}
+,
+
     },
     pages: {
         signIn: "/login"
     }
 }
-
-
-
-// async signIn({ user, account, profile }) {
-//     if (account?.provider === "google") {
-//         if (!user.email) throw new Error("No email from provider");
-        
-//         // Check if user exists with password
-//         const existingUser = await prisma.user.findUnique({
-//             where: { email: user.email }
-//         });
-
-//         if (existingUser?.password) {
-//             // Option 1: Allow both methods (recommended)
-//             // Just continue with Google sign-in
-            
-//             // Option 2: Block and show error (current behavior)
-//             throw new Error("Email already registered with password. Please use credentials login.");
-//         }
-
-//         // For new Google users, ensure their record is properly created
-//         if (!existingUser) {
-//             await prisma.user.create({
-//                 data: {
-//                     email: user.email,
-//                     name: user.name || profile?.name || "Google User",
-//                     // No password for Google users
-//                 }
-//             });
-//         }
-//     }
-//     return true;
-// }
