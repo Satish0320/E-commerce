@@ -16,7 +16,8 @@ export default function LoginPage(){
         const res = await signIn("credentials",{
             redirect: false,
             email: form.email,
-            password: form.password
+            password: form.password,
+            callbackUrl:"/"
         })
 
         if (res?.ok) {
@@ -49,7 +50,9 @@ export default function LoginPage(){
         </form>
         <button 
         className="w-full bg-blue-300 text-white p-2 rounded m-2"
-        onClick={()=>signIn("google")}
+        onClick={()=>{
+            signIn("google", {callbackUrl: "http://localhost:3000"})
+        }}
         >Google</button>
         </div>
 
